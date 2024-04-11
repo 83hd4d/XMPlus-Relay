@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/xmplusdev/xmcore/common/net"
 	"github.com/xmplusdev/xmcore/core"
 	"github.com/xmplusdev/xmcore/infra/conf"
 	"github.com/XMPlusDev/XMPlus-Relay/api"

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	
 	"github.com/XMPlusDev/XMPlus-Relay/api"
-	"github.com/xmplusdev/xmcore/common/net"
 	"github.com/xmplusdev/xmcore/core"
 	"github.com/xmplusdev/xmcore/infra/conf"
 	"github.com/xmplusdev/xmcore/common/protocol"
