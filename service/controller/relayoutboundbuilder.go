@@ -171,6 +171,8 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 	case "grpc":
 		grpcSettings := &conf.GRPCConfig{
 			ServiceName: nodeInfo.ServiceName,
+			Authority: nodeInfo.Authority,
+			UserAgent:   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/123.0.6312.52 Mobile/15E148 Safari/604.1",
 		}
 		streamSetting.GRPCConfig = grpcSettings
 	case "quic":

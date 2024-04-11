@@ -117,11 +117,13 @@ func (c *APIClient) parseResponse(res *resty.Response, path string, err error) (
 		return nil, fmt.Errorf("request %s failed: %s", c.assembleURL(path), err)
 	}
 
-	if res.StatusCode() > 399 {
+	if res.StatusCode() > 400 {
 		body := res.Body()
-		return nil, fmt.Errorf("request %s failed: %s, %s", c.assembleURL(path), string(body), err)
+		return nil, fmt.Errorf("request %s failed: %s, %v", c.assembleURL(path), string(body), err)
 	}
+	
 	rtn, err := simplejson.NewJson(res.Body())
+	
 	if err != nil {
 		return nil, fmt.Errorf("%s", res.String())
 	}
@@ -351,9 +353,14 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 	}
 	
 	Flow := ""
-	
+		
 	if s.NetworkSettings.Flow == "xtls-rprx-vision" || s.NetworkSettings.Flow == "xtls-rprx-vision-udp443"{
 		Flow = s.NetworkSettings.Flow
+	}
+	
+	Authority := ""
+	if s.NetworkSettings.Authority != ""{
+		Authority = s.NetworkSettings.Authority
 	}
 	
 	TLSType = s.Security
@@ -454,6 +461,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		Host:              host,
 		ServiceName:       serviceName,
 		Flow:              Flow,
+		Authority          Authority,
 		Header:            header,
 		Seed:              seed,
 		Congestion:        congestion,
@@ -505,6 +513,11 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 	
 	if s.RNetworkSettings.Flow == "xtls-rprx-vision" || s.RNetworkSettings.Flow == "xtls-rprx-vision-udp443"{
 		Flow = s.RNetworkSettings.Flow
+	}
+	
+	Authority := ""
+	if s.NetworkSettings.Authority != ""{
+		Authority = s.NetworkSettings.Authority
 	}
 	
 	TLSType = s.RSecurity
@@ -592,6 +605,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 		Path:              path,
 		Host:              host,
 		Flow:              Flow,
+		Authority          Authority,
 		Seed :             seed,
 		Congestion:        congestion,	
 		ServiceName:       serviceName,

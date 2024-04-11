@@ -43,6 +43,7 @@ type NodeInfo struct {
 	CertDomain        string
 	ServerKey         string
 	ServiceName       string
+	Authority         string
 	Header            json.RawMessage
 	SendIP            string
 	Flow              string
@@ -79,6 +80,7 @@ type RelayNodeInfo struct {
 	SendIP            string
 	ServerKey         string
 	ServiceName       string
+	Authority         string
 	Header            json.RawMessage
 	Flow              string
 	Seed              string

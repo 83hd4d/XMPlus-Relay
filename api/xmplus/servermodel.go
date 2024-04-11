@@ -25,6 +25,7 @@ type server struct {
 		Quickey       string           `json:"key"`
 		Headers       *json.RawMessage `json:"headers"`
 		ServiceName   string           `json:"serviceName"`
+		Authority     string           `json:"authority"`
 		Header        *json.RawMessage `json:"header"`
 		Transport     string           `json:"transport"`
 		Seed          string           `json:"seed"`
@@ -72,6 +73,7 @@ type relay_server struct {
 		Quickey       string           `json:"key"`
 		Headers       *json.RawMessage `json:"headers"`
 		ServiceName   string           `json:"serviceName"`
+		Authority     string           `json:"authority"`
 		Header        *json.RawMessage `json:"header"`
 		Transport     string           `json:"transport"`
 		Seed          string           `json:"seed"`
