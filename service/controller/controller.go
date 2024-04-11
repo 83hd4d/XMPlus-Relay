@@ -207,7 +207,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 	
 	if err != nil {
 		if nodeInfoChanged {
-			if err.Error() == api.ServiceNotModified &&  {
+			if err.Error() == api.ServiceNotModified {
 				serviceChanged = true
 			} else {
 				log.Print(err)
