@@ -202,17 +202,27 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 	// Update User
 	
 	var serviceChanged = true
+	
 	newServiceInfo, err := c.apiClient.GetServiceList()
+	
 	if err != nil {
-		if err.Error() == api.ServiceNotModified && nodeInfoChanged == false {
-			serviceChanged = false
-			newServiceInfo = c.serviceList
-		}elseif err.Error() == api.ServiceNotModified && nodeInfoChanged == true {
-			serviceChanged = true
-		} else {
-			log.Print(err)
-			return nil
+		if nodeInfoChanged {
+			if err.Error() == api.ServiceNotModified &&  {
+				serviceChanged = true
+			} else {
+				log.Print(err)
+				return nil
+			}
+		}else{
+			if err.Error() == api.ServiceNotModified  {
+				serviceChanged = false
+				newServiceInfo = c.serviceList
+			} else {
+				log.Print(err)
+				return nil
+			}
 		}
+		
 	}
 	
 	var updateRelay = false	

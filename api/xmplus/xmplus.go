@@ -359,7 +359,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 	}
 	
 	Authority := ""
-	if s.NetworkSettings.Authority != ""{
+	if s.NetworkSettings.Authority != "" {
 		Authority = s.NetworkSettings.Authority
 	}
 	
@@ -516,7 +516,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 	}
 	
 	Authority := ""
-	if s.NetworkSettings.Authority != ""{
+	if s.NetworkSettings.Authority != "" {
 		Authority = s.NetworkSettings.Authority
 	}
 	
