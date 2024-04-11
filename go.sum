@@ -1737,7 +1737,7 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/xtls/reality v0.0.0-20231112171332-de1173cf2b19 h1:capMfFYRgH9BCLd6A3Er/cH3A9Nz3CU2KwxwOQZIePI=
 github.com/xtls/reality v0.0.0-20231112171332-de1173cf2b19/go.mod h1:dm4y/1QwzjGaK17ofi0Vs6NpKAHegZky8qk6J2JJZAE=
 github.com/xmplusdev/xmcore v1.8.10 h1:sxsrSrA9RBj/Yi4nG/Gm8Z+Nf5hZwnVRNkih0d54Tpo=
-github.com/xmplusdev/xmcore v1.8.10/go.mod h1:s3Kh0yMkt+BgBV9SlCS8x89AP37T6vq+iNnFodflDCs=
+github.com/xmplusdev/xmcore v1.8.10/go.mod h1:xYKQtNis2sEgk4CzY5wJLhcGCoePRjZLj/0m4QGO8Xo=
 github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 h1:6fRhSjgLCkTD3JnJxvaJ4Sj+TYblw757bqYgZaOq5ZY=
 github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0/go.mod h1:/LWChgwKmvncFJFHJ7Gvn9wZArjbV5/FppcK2fKk/tI=
 github.com/yandex-cloud/go-genproto v0.0.0-20240311082839-58e1a7554a75 h1:hkFRBcSOFUNuuORzA5DqvBcoFjH7R0HCIu+mlSSw56U=
