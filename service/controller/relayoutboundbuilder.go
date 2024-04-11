@@ -219,8 +219,7 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 	outboundDetourConfig.Tag = fmt.Sprintf("%s_%d", tag,UID)
 	
 	if nodeInfo.SendIP != "" {
-		ipAddress := net.ParseAddress(nodeInfo.SendIP)
-		outboundDetourConfig.SendThrough = &conf.Address{Address: ipAddress}
+		outboundDetourConfig.SendThrough = &nodeInfo.SendIP
 	}
 	outboundDetourConfig.StreamSetting = streamSetting
 	

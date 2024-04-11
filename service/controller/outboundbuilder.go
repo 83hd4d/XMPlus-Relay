@@ -18,8 +18,7 @@ func OutboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.
 
 	// Build Send IP address
 	if nodeInfo.SendIP != "" {
-		ipAddress := net.ParseAddress(nodeInfo.SendIP)
-		outboundDetourConfig.SendThrough = &conf.Address{Address: ipAddress}
+		outboundDetourConfig.SendThrough = &nodeInfo.SendIP
 	}
 
 	// Freedom Protocol setting
