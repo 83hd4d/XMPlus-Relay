@@ -8,7 +8,7 @@ import (
 
 	"github.com/XMPlusDev/XMPlus-Relay/app/xdispatcher"
 
-	"github.com/imdario/mergo"
+	"dario.cat/mergo"
 	"github.com/r3labs/diff/v2"
 	"github.com/xmplusdev/xmcore/app/proxyman"
 	"github.com/xmplusdev/xmcore/app/stats"
