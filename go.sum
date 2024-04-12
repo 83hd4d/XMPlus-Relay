@@ -1736,7 +1736,7 @@ github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQ
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xtls/reality v0.0.0-20231112171332-de1173cf2b19 h1:capMfFYRgH9BCLd6A3Er/cH3A9Nz3CU2KwxwOQZIePI=
 github.com/xtls/reality v0.0.0-20231112171332-de1173cf2b19/go.mod h1:dm4y/1QwzjGaK17ofi0Vs6NpKAHegZky8qk6J2JJZAE=
-github.com/xmplusdev/xmcore v1.8.8 h1:hPAd2rHXjd7XrSiCefvlnebPAyDrrq2w3XZPjuVcA54=
+github.com/xmplusdev/xmcore v1.8.8 h1:H2xCMZH9rV0hRqVC5t4boMQt/ggZg7FWvflXrg5Om4Y=
 github.com/xmplusdev/xmcore v1.8.8/go.mod h1:xYKQtNis2sEgk4CzY5wJLhcGCoePRjZLj/0m4QGO8Xo=
 github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0 h1:6fRhSjgLCkTD3JnJxvaJ4Sj+TYblw757bqYgZaOq5ZY=
 github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0/go.mod h1:/LWChgwKmvncFJFHJ7Gvn9wZArjbV5/FppcK2fKk/tI=
