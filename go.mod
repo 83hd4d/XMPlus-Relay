@@ -23,7 +23,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
-	github.com/xmplusdev/xmcore v1.8.9
+	github.com/xmplusdev/xmcore v1.8.8
 	golang.org/x/crypto v0.22.0
 	golang.org/x/net v0.24.0
 	golang.org/x/time v0.5.0
