@@ -168,6 +168,13 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 			Path: nodeInfo.Path,
 		}
 		streamSetting.HTTPSettings = httpSettings
+	case "httpupgrade":
+		httpupgradeSettings := &conf.HttpUpgradeConfig{
+		    AcceptProxyProtocol: nodeInfo.ProxyProtocol,
+			Host: nodeInfo.Host,
+			Path: nodeInfo.Path,
+		}
+		streamSetting.HTTPUPGRADESettings = httpupgradeSettings	
 	case "grpc":
 		grpcSettings := &conf.GRPCConfig{
 			ServiceName: nodeInfo.ServiceName,

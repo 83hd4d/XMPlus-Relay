@@ -398,6 +398,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 				host = w.Get("Host").MustString()
 			}
 		case "h2":
+		case "httpupgrade":
 			path = s.NetworkSettings.Path
 			host = s.NetworkSettings.Host
 		case "grpc":
@@ -542,6 +543,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 			host = w.Get("Host").MustString()
 		}
 	case "h2":
+	case "httpupgrade":
 		path = s.RNetworkSettings.Path
 		host = s.RNetworkSettings.Host
 	case "grpc":
