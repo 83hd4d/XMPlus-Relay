@@ -27,7 +27,6 @@ type protocolSnifferWithMetadata struct {
 	network         net.Network
 }
 
-
 type Sniffer struct {
 	sniffer []protocolSnifferWithMetadata
 }

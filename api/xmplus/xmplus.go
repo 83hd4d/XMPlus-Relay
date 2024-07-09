@@ -343,6 +343,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		header                  json.RawMessage
 		congestion ,RejectUnknownSni, AllowInsecure, Show  bool
 		MaxTimeDiff,ProxyProtocol  uint64 = 0, 0	
+		MaxUploadSize, MaxConcurrentUploads int32 = 1000000, 10
 		ServerNames,  ShortIds []string
 	)
 	
@@ -398,9 +399,15 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 				host = w.Get("Host").MustString()
 			}
 		case "h2":
+		case "http":
 		case "httpupgrade":
 			path = s.NetworkSettings.Path
 			host = s.NetworkSettings.Host
+		case "splithttp":
+			path = s.NetworkSettings.Path
+			host = s.NetworkSettings.Host
+			MaxUploadSize = int32(s.NetworkSettings.MaxUploadSize)
+			MaxConcurrentUploads = int32(s.NetworkSettings.MaxConcurrentUploads)	
 		case "grpc":
 			serviceName = s.NetworkSettings.ServiceName
 		case "tcp":
@@ -493,6 +500,8 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		Xver:              ProxyProtocol,
 		Relay:             s.Relay,
 		RelayNodeID:       s.Relayid,
+		MaxConcurrentUploads: MaxConcurrentUploads, 
+		MaxUploadSize:     MaxUploadSize,
 	}
 	return nodeInfo, nil
 }
@@ -506,6 +515,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 		path, host, quic_security, quic_key, serviceName, seed, htype , PublicKey , ShortId ,SpiderX, ServerName string
 		header   json.RawMessage
 		congestion, Show   bool
+		MaxUploadSize, MaxConcurrentUploads int32 = 1000000, 10
 	)
 	
 	NodeType := s.RType
@@ -543,9 +553,15 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 			host = w.Get("Host").MustString()
 		}
 	case "h2":
+	case "http":
 	case "httpupgrade":
 		path = s.RNetworkSettings.Path
 		host = s.RNetworkSettings.Host
+	case "splithttp":
+			path = s.RNetworkSettings.Path
+			host = s.RNetworkSettings.Host
+			MaxUploadSize = int32(s.RNetworkSettings.MaxUploadSize)
+			MaxConcurrentUploads = int32(s.RNetworkSettings.MaxConcurrentUploads)	
 	case "grpc":
 		serviceName = s.RNetworkSettings.ServiceName
 	case "tcp":
@@ -626,6 +642,8 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 		SpiderX:           SpiderX,
 		Show:              Show,
 		ServerName:        ServerName,
+		MaxConcurrentUploads: MaxConcurrentUploads, 
+		MaxUploadSize:     MaxUploadSize,
 	}
 	return nodeInfo, nil
 }

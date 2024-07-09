@@ -31,6 +31,8 @@ type server struct {
 		Seed          string           `json:"seed"`
 		Congestion    bool 	           `json:"congestion"`
 		Flow          string    `json:"flow"`
+		MaxConcurrentUploads int       `json:"maxconcurrentuploads"`
+		MaxUploadSize  int             `json:"maxuploadsize"`
 	} `json:"networkSettings"`
 	Security    string `json:"security"`
 	SecuritySettings  struct {
@@ -79,6 +81,8 @@ type relay_server struct {
 		Seed          string           `json:"seed"`
 		Congestion    bool 	           `json:"congestion"`
 		Flow          string           `json:"flow"`
+		MaxConcurrentUploads int       `json:"maxconcurrentuploads"`
+		MaxUploadSize  int             `json:"maxuploadsize"`
 	} `json:"networkSettings"`
 	RSecurity string `json:"security"`
 	RSecuritySettings struct {

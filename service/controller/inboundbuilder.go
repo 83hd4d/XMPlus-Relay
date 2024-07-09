@@ -175,6 +175,14 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 			Path: nodeInfo.Path,
 		}
 		streamSetting.HTTPUPGRADESettings = httpupgradeSettings	
+	case "splithttp":
+		splithttpSettings := &conf.SplitHTTPConfig{
+			Host: nodeInfo.Host,
+			Path: nodeInfo.Path,
+			MaxConcurrentUploads: nodeInfo.MaxConcurrentUploads,
+			MaxUploadSize: nodeInfo.MaxUploadSize,
+		}
+		streamSetting.SplitHTTPSettings = splithttpSettings		
 	case "grpc":
 		grpcSettings := &conf.GRPCConfig{
 			ServiceName: nodeInfo.ServiceName,

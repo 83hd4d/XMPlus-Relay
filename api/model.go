@@ -61,6 +61,8 @@ type NodeInfo struct {
 	Xver              uint64
 	Relay             bool
 	RelayNodeID       int
+	MaxConcurrentUploads int32
+	MaxUploadSize    int32
 }
 
 type RelayNodeInfo struct {
@@ -92,6 +94,8 @@ type RelayNodeInfo struct {
 	SpiderX           string 
 	Show              bool
 	ServerName        string
+	MaxConcurrentUploads int32
+	MaxUploadSize    int32
 }
 
 type ServiceInfo struct {

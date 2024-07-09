@@ -49,6 +49,9 @@ import (
 	_ "github.com/xmplusdev/xmcore/transport/internet/udp"
 	_ "github.com/xmplusdev/xmcore/transport/internet/websocket"
 	_ "github.com/xmplusdev/xmcore/transport/internet/reality"
+	_ "github.com/xmplusdev/xmcore/transport/internet/httpupgrade"
+	_ "github.com/xmplusdev/xmcore/transport/internet/splithttp"
+	_ "github.com/xmplusdev/xmcore/transport/internet/grpc"
 
 	// Transport headers
 	_ "github.com/xmplusdev/xmcore/transport/internet/headers/http"

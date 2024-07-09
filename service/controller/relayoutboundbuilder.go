@@ -174,6 +174,14 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 			Path: nodeInfo.Path,
 		}
 		streamSetting.HTTPUPGRADESettings = httpupgradeSettings	
+	case "splithttp":
+		splithttpSettings := &conf.SplitHTTPConfig{
+			Host: nodeInfo.Host,
+			Path: nodeInfo.Path,
+			MaxConcurrentUploads: nodeInfo.MaxConcurrentUploads,
+			MaxUploadSize: nodeInfo.MaxUploadSize,
+		}
+		streamSetting.SplitHTTPSettings = splithttpSettings		
 	case "grpc":
 		grpcSettings := &conf.GRPCConfig{
 			ServiceName: nodeInfo.ServiceName,
@@ -234,7 +242,7 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 
 func buildRVmessUser(tag string, UUID string, Email string) *protocol.User {
 	vmessAccount := &conf.VMessAccount{
-		ID:       UUID,
+		ID:  UUID,
 		Security: "auto",
 	}
 	return &protocol.User{
