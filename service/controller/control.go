@@ -158,11 +158,11 @@ func (c *Controller) GetDetectResult(tag string) (*[]api.DetectResult, error) {
 	return c.dispatcher.RuleManager.GetDetectResult(tag)
 }
 
-func (c *Controller) AddUsersRule(tag string, email []string) {
-	c.rdispatcher.AddUsers(tag, email)
+func (c *Controller) AddUserRule(tag string, email []string) {
+	c.rdispatcher.AddUserRule(tag, email)
 }
 
-func (c *Controller) RemoveUsersRule(email []string)  {
-	c.rdispatcher.RemoveUsers(email)
+func (c *Controller) RemoveUserRule(email []string)  {
+	c.rdispatcher.RemoveUserRule(email)
 	return
 }

@@ -369,7 +369,7 @@ func (c *Controller) removeRelayTag(tag string, serviceInfo *[]api.ServiceInfo) 
 
 func (c *Controller) removeRules(tag string, serviceInfo *[]api.ServiceInfo){
 	for _, service := range *serviceInfo {
-		c.RemoveUsersRule([]string{c.buildUserTag(&service)})			
+		c.RemoveUserRule([]string{c.buildUserTag(&service)})			
 	}	
 }
 
@@ -396,7 +396,7 @@ func (c *Controller) addNewRelayTag(newRelayNodeInfo *api.RelayNodeInfo, service
 			if err != nil {
 				return err
 			}
-			c.AddUsersRule(fmt.Sprintf("%s_%d", c.RelayTag, service.UID), []string{c.buildUserTag(&service)})		
+			c.AddUserRule(fmt.Sprintf("%s_%d", c.RelayTag, service.UID), []string{c.buildUserTag(&service)})		
 		}
 	}
 	return nil
