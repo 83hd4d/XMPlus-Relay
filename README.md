@@ -148,6 +148,27 @@ Nodes:
 }
 ```
 
+####  HTTPUPGRADE
+```
+{
+  "transport" : "httpupgrade",
+  "acceptProxyProtocol": false,
+  "host": "www.cloudflare.com",
+  "path": "/mypath?ed=2560"
+}
+```
+
+####  SPLITHTTP
+```
+{
+  "transport" : "splithttp",
+  "host": "www.cloudflare.com",
+  "path": "/",
+  "maxUploadSize": 1000000,
+  "maxConcurrentUploads": 10 
+}
+```
+
 ### Security Settings
 
 
