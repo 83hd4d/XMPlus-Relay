@@ -38,7 +38,7 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 
 	sniffingConfig := &conf.SniffingConfig{
 		Enabled:      nodeInfo.Sniffing,
-		DestOverride: &conf.StringList{"http", "tls"},
+		DestOverride: &conf.StringList{"http", "tls", "quic", "fakedns"},
 	}
 	
 	inboundDetourConfig.SniffingConfig = sniffingConfig
@@ -148,24 +148,24 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 	case "tcp":
 		tcpSetting := &conf.TCPConfig{
 			AcceptProxyProtocol: nodeInfo.ProxyProtocol,
+			HeaderConfig:  nodeInfo.Header,
 		}
-		tcpSetting.HeaderConfig = nodeInfo.Header
-		
 		streamSetting.TCPSettings = tcpSetting
 	case "websocket":
-		headers := make(map[string]string)
-		headers["Host"] = nodeInfo.Host
 		wsSettings := &conf.WebSocketConfig{
 			AcceptProxyProtocol: nodeInfo.ProxyProtocol,
-			Path:                nodeInfo.Path,
-			Headers:             headers,
+			Path: nodeInfo.Path,
+			Host: nodeInfo.Host,
+			Headers: nodeInfo.Headers,
 		}
 		streamSetting.WSSettings = wsSettings
 	case "http":
 		hosts := conf.StringList{nodeInfo.Host}
 		httpSettings := &conf.HTTPConfig{
-			Host: &hosts,
-			Path: nodeInfo.Path,
+			Host:    &hosts,
+			Path:    nodeInfo.Path,
+			Method:  nodeInfo.Method,
+			Headers: nodeInfo.HttpHeaders,
 		}
 		streamSetting.HTTPSettings = httpSettings
 	case "httpupgrade":
@@ -173,12 +173,14 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 		    AcceptProxyProtocol: nodeInfo.ProxyProtocol,
 			Host: nodeInfo.Host,
 			Path: nodeInfo.Path,
+			Headers: nodeInfo.Headers,
 		}
 		streamSetting.HTTPUPGRADESettings = httpupgradeSettings	
 	case "splithttp":
 		splithttpSettings := &conf.SplitHTTPConfig{
 			Host: nodeInfo.Host,
 			Path: nodeInfo.Path,
+			Headers: nodeInfo.Headers,
 			MaxConcurrentUploads: nodeInfo.MaxConcurrentUploads,
 			MaxUploadSize: nodeInfo.MaxUploadSize,
 		}
@@ -191,25 +193,17 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 		}
 		streamSetting.GRPCConfig = grpcSettings
 	case "quic":
-		if nodeInfo.Quic_key != "" {
-			quicSettings := &conf.QUICConfig{
-				Security:  nodeInfo.Quic_security,
-				Header:    nodeInfo.Header,
-				Key:       nodeInfo.Quic_key,
-			}
-			streamSetting.QUICSettings = quicSettings
-		}else{
-			quicSettings := &conf.QUICConfig{
-				Security:  nodeInfo.Quic_security,
-				Header:    nodeInfo.Header,
-			}
-			streamSetting.QUICSettings = quicSettings
+		quicSettings := &conf.QUICConfig{
+			Security:  nodeInfo.Quic_security,
+			Key:       nodeInfo.Quic_key,
+			Header:    nodeInfo.Header,
 		}
+		streamSetting.QUICSettings = quicSettings
 	case "mkcp":
 		kcpSettings := &conf.KCPConfig{
-			HeaderConfig:    nodeInfo.Header,
+			HeaderConfig:   nodeInfo.Header,
 			Congestion:      &nodeInfo.Congestion,
-			Seed:            &nodeInfo.Seed,
+			Seed:  &nodeInfo.Seed,
 		}
 		streamSetting.KCPSettings = kcpSettings	
 	}
@@ -227,12 +221,10 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 			tlsSettings := &conf.TLSConfig{
 				RejectUnknownSNI: nodeInfo.RejectUnknownSNI,
 			}
-			tlsSettings.Insecure = nodeInfo.AllowInsecure
-			tlsSettings.ServerName = nodeInfo.CertDomain
-			if nodeInfo.Alpn != "" {
-				alpn := conf.StringList{nodeInfo.Alpn}
-				tlsSettings.ALPN = &alpn
+			if nodeInfo.AllowInsecure {
+				tlsSettings.Insecure = nodeInfo.AllowInsecure
 			}
+			tlsSettings.ServerName = nodeInfo.CertDomain
 			tlsSettings.Fingerprint = nodeInfo.Fingerprint
 			tlsSettings.Certs = append(tlsSettings.Certs, &conf.TLSCertConfig{CertFile: certFile, KeyFile: keyFile, OcspStapling: 3600})
 
@@ -251,25 +243,17 @@ func InboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.I
 		realitySettings :=  &conf.REALITYConfig{
 			Dest:   dest,
 		}
-		
 		realitySettings.Show = nodeInfo.Show
 		realitySettings.Xver = nodeInfo.Xver
 		realitySettings.ServerNames = nodeInfo.ServerNames
-		if nodeInfo.PrivateKey != "" {
-			realitySettings.PrivateKey = nodeInfo.PrivateKey
-		}else{
-			realitySettings.PrivateKey = config.RealityPrivateKey
-		}
+		realitySettings.PrivateKey = nodeInfo.PrivateKey
 		realitySettings.ShortIds = nodeInfo.ShortIds
-		
 		if nodeInfo.MinClientVer != "" {
 			realitySettings.MinClientVer = nodeInfo.MinClientVer
 		}
-		
 		if nodeInfo.MaxClientVer != "" {
 			realitySettings.MaxClientVer = nodeInfo.MaxClientVer
 		}	
-		
 		if nodeInfo.MaxTimeDiff > 0 {
 			realitySettings.MaxTimeDiff = nodeInfo.MaxTimeDiff
 		}

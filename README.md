@@ -54,12 +54,15 @@ Nodes:
           Path: # HTTP PATH, Empty for any
           Dest: 80 # Required, Destination of fallback, check https://xtls.github.io/config/features/fallback.html for details.
           ProxyProtocolVer: 0 # Send PROXY protocol version, 0 for disable
-      RealityPrivateKey: ""   # Reality Private Key       
-      EnableFragment: false 
-      FragmentConfigs:
-        Packets: "tlshello" # TLS Hello Fragmentation (into multiple handshake messages)
-        Length: "100-200"   # minLength to maxLength
-        Interval: "10-20"   # minInterval to maxInterval   
+      IPLimit:
+        Enable: false # Enable the global ip limit of a user 
+        RedisNetwork: tcp # Redis protocol, tcp or unix
+        RedisAddr: 35.177.151.31:6379 # Redis server address, or unix socket path
+        RedisUsername: default # Redis username
+        RedisPassword: YOURPASSWORD # Redis password
+        RedisDB: 0 # Redis DB
+        Timeout: 5 # Timeout for redis request
+        Expiry: 60 # Expiry time (second) 
 ```
 
 ## XMPlus Panel Server configuration
@@ -87,7 +90,7 @@ Nodes:
     "request": {
       "path": "/xmplus",
       "headers": {
-        "Host": "x.tld.com"
+        "Host": ["www.baidu.com", "www.taobao.com", "www.cloudflare.com"]
       }
     }
   }
@@ -96,11 +99,12 @@ Nodes:
 ####  WS
 ```
 {
-  "transport" : "ws",
+  "transport": "ws",
   "acceptProxyProtocol": false,
-  "path": "/xmplus",
+  "path": "/xmplus?ed=2560",
+  "host": "hk1.xyz.com",
   "headers": {
-    "Host": "x.tld.com"
+    "host": "hk1.xyz.com"
   }
 }
 ```
@@ -110,8 +114,8 @@ Nodes:
 {
   "transport" : "h2",
   "acceptProxyProtocol": false,
-  "host": "x.tld.com",
-  "path": "/xmplus"
+  "host": "hk1.xyz.com",
+  "path": "/"
 }
 ```
 
@@ -120,9 +124,38 @@ Nodes:
 {
   "transport" : "grpc",
   "acceptProxyProtocol": false,
-  "serviceName": "xmplus"
+  "serviceName": "xmplus",
+  "authority": "hk1.xyz.com"
 }
 ```
+
+####  HTTPUPGRADE
+```
+{
+  "transport" : "httpupgrade",
+  "acceptProxyProtocol": false,
+  "host": "hk1.xyz.com",
+  "path": "/xmplus?ed=2560",
+  "headers": {
+    "host": "hk1.xyz.com"
+  }
+}
+```
+
+####  SPLITHTTP
+```
+{
+  "transport" : "splithttp",
+  "host": "hk1.xyz.com",
+  "path": "/",
+  "headers": {
+    "host": "hk1.xyz.com"
+  },
+  "maxUploadSize": 1000000,
+  "maxConcurrentUploads": 10 
+}
+```
+
 ####  QUIC
 ```
 {
@@ -148,27 +181,6 @@ Nodes:
 }
 ```
 
-####  HTTPUPGRADE
-```
-{
-  "transport" : "httpupgrade",
-  "acceptProxyProtocol": false,
-  "host": "www.cloudflare.com",
-  "path": "/mypath?ed=2560"
-}
-```
-
-####  SPLITHTTP
-```
-{
-  "transport" : "splithttp",
-  "host": "www.cloudflare.com",
-  "path": "/",
-  "maxUploadSize": 1000000,
-  "maxConcurrentUploads": 10 
-}
-```
-
 ### Security Settings
 
 
@@ -178,7 +190,8 @@ Nodes:
   "serverName": "xmplus.dev",
   "rejectUnknownSni": true,
   "allowInsecure": false,
-  "fingerprint": "chrome"
+  "fingerprint": "chrome",
+  "sni" : "xmplus.dev"
 }
 ```
 #### REALITY

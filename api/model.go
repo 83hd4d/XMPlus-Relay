@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"regexp"
+	
+	"github.com/xmplusdev/xmcore/infra/conf"
 )
 
 const (
@@ -48,7 +50,6 @@ type NodeInfo struct {
 	SendIP            string
 	Flow              string
 	Seed              string
-	Alpn              string
 	Congestion        bool
 	Dest              string
 	Show              bool
@@ -63,6 +64,9 @@ type NodeInfo struct {
 	RelayNodeID       int
 	MaxConcurrentUploads int32
 	MaxUploadSize    int32
+	Headers           map[string]string
+	Method           string
+	HttpHeaders      map[string]*conf.StringList
 }
 
 type RelayNodeInfo struct {
@@ -96,6 +100,9 @@ type RelayNodeInfo struct {
 	ServerName        string
 	MaxConcurrentUploads int32
 	MaxUploadSize    int32
+	Headers           map[string]string
+	Method           string
+	HttpHeaders      map[string]*conf.StringList
 }
 
 type ServiceInfo struct {

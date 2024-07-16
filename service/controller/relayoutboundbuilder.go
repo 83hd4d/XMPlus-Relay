@@ -148,16 +148,15 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 	case "tcp":
 		tcpSetting := &conf.TCPConfig{
 			AcceptProxyProtocol: nodeInfo.ProxyProtocol,
-			HeaderConfig:        nodeInfo.Header,
+			HeaderConfig: nodeInfo.Header,
 		}
 		streamSetting.TCPSettings = tcpSetting
 	case "websocket":
-		headers := make(map[string]string)
-		headers["Host"] = nodeInfo.Host
 		wsSettings := &conf.WebSocketConfig{
 			AcceptProxyProtocol: nodeInfo.ProxyProtocol,
-			Path:                nodeInfo.Path,
-			Headers:             headers,
+			Path: nodeInfo.Path,
+			Host: nodeInfo.Host,
+			Headers: nodeInfo.Headers,
 		}
 		streamSetting.WSSettings = wsSettings
 	case "http":
@@ -165,6 +164,8 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 		httpSettings := &conf.HTTPConfig{
 			Host: &hosts,
 			Path: nodeInfo.Path,
+			Method: nodeInfo.Method,
+			Headers: nodeInfo.HttpHeaders,
 		}
 		streamSetting.HTTPSettings = httpSettings
 	case "httpupgrade":
@@ -172,12 +173,14 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 		    AcceptProxyProtocol: nodeInfo.ProxyProtocol,
 			Host: nodeInfo.Host,
 			Path: nodeInfo.Path,
+			Headers: nodeInfo.Headers,
 		}
 		streamSetting.HTTPUPGRADESettings = httpupgradeSettings	
 	case "splithttp":
 		splithttpSettings := &conf.SplitHTTPConfig{
 			Host: nodeInfo.Host,
 			Path: nodeInfo.Path,
+			Headers: nodeInfo.Headers,
 			MaxConcurrentUploads: nodeInfo.MaxConcurrentUploads,
 			MaxUploadSize: nodeInfo.MaxUploadSize,
 		}
@@ -192,15 +195,15 @@ func OutboundRelayBuilder(nodeInfo *api.RelayNodeInfo , tag string, UUID string,
 	case "quic":
 		quicSettings := &conf.QUICConfig{
 			Security:  nodeInfo.Quic_security,
-			Header:    nodeInfo.Header,
 			Key:       nodeInfo.Quic_key,
+			Header:    nodeInfo.Header,
 		}
 		streamSetting.QUICSettings = quicSettings
 	case "mkcp":
 		kcpSettings := &conf.KCPConfig{
-			HeaderConfig:    nodeInfo.Header,
+			HeaderConfig:   nodeInfo.Header,
 			Congestion:      &nodeInfo.Congestion,
-			Seed:            &nodeInfo.Seed,
+			Seed:  &nodeInfo.Seed,
 		}
 		streamSetting.KCPSettings = kcpSettings	
 	}

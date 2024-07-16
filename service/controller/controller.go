@@ -20,6 +20,7 @@ import (
 	"github.com/XMPlusDev/XMPlus-Relay/utility/mylego"
 	C "github.com/sagernet/sing/common"
 	"github.com/sagernet/sing-shadowsocks/shadowaead_2022"
+	"github.com/xmplusdev/xmcore/infra/conf"
 )
 
 type Controller struct {
@@ -118,7 +119,7 @@ func (c *Controller) Start() error {
 	}
 
 	// Add Limiter
-	if err := c.AddInboundLimiter(c.Tag, newNodeInfo.SpeedLimit, serviceInfo); err != nil {
+	if err := c.AddInboundLimiter(c.Tag, newNodeInfo.SpeedLimit, serviceInfo, c.config.IPLimit); err != nil {
 		log.Print(err)
 	}
 
@@ -322,7 +323,7 @@ func (c *Controller) nodeInfoMonitor() (err error) {
 		}
 
 		// Add Limiter
-		if err := c.AddInboundLimiter(c.Tag, newNodeInfo.SpeedLimit, newServiceInfo); err != nil {
+		if err := c.AddInboundLimiter(c.Tag, newNodeInfo.SpeedLimit, newServiceInfo, c.config.IPLimit); err != nil {
 			log.Print(err)
 			return nil
 		}	
@@ -618,7 +619,13 @@ func (c *Controller) buildRNodeTag() string {
 }
 
 func (c *Controller) logPrefix() string {
-	return fmt.Sprintf("[%s] %s(NodeID=%d)", c.clientInfo.APIHost, c.nodeInfo.NodeType, c.nodeInfo.NodeID)
+	transportProtocol := conf.TransportProtocol(c.nodeInfo.Transport)
+	networkType, err := transportProtocol.Build()
+	if err != nil {
+		return fmt.Sprintf("[%s] %s(NodeID=%d)", c.clientInfo.APIHost, c.nodeInfo.NodeType, c.nodeInfo.NodeID)
+	}
+	
+	return fmt.Sprintf("[%s] %s(NodeID=%d) [Transport=%s]", c.clientInfo.APIHost, c.nodeInfo.NodeType, c.nodeInfo.NodeID, networkType)
 }
 
 // Check Cert

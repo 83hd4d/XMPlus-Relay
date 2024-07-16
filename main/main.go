@@ -23,7 +23,7 @@ var (
 )
 
 var (
-	version  = "XMPlus v1.0.7 (XMPlus v2 - Relay)"
+	version  = "v1.0.8 (XMPlusv2 - Relay)"
 )
 
 func showVersion() {

@@ -15,7 +15,6 @@ import (
 
 	"github.com/bitly/go-simplejson"
 	"github.com/go-resty/resty/v2"
-
 	"github.com/XMPlusDev/XMPlus-Relay/api"
 )
 
@@ -249,7 +248,7 @@ func (c *APIClient) ParseUserListResponse(serviceResponse *[]Service) (*[]api.Se
 			UID:  service.Id,
 			UUID: service.Uuid,
 			Email: service.Email,
-			Passwd: service.Uuid,
+			Passwd: service.Passwd,
 			DeviceLimit: deviceLimit,
 			SpeedLimit:  uint64(service.Speedlimit * 1000000 / 8),
 		})
@@ -338,44 +337,32 @@ func (c *APIClient) ReportNodeOnlineIPs(onlineServiceList *[]api.OnlineIP) error
 
 func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 	var (
-		TLSType  = "none"
-		path, host, quic_security, quic_key, serviceName, seed, htype, Alpn, Dest, PrivateKey, MinClientVer, MaxClientVer string
-		header                  json.RawMessage
+		path, host, quic_security, quic_key, serviceName, seed, Dest, PrivateKey, MinClientVer, MaxClientVer, Flow, Authority string
+		header  json.RawMessage
+		headers map[string]string
 		congestion ,RejectUnknownSni, AllowInsecure, Show  bool
 		MaxTimeDiff,ProxyProtocol  uint64 = 0, 0	
 		MaxUploadSize, MaxConcurrentUploads int32 = 1000000, 10
-		ServerNames,  ShortIds []string
+		ServerNames,  ShortIds  []string
 	)
-	
-	NodeType := s.Type
-
-	if s.SecuritySettings.Alpn != "" {
-		Alpn = s.SecuritySettings.Alpn
-	}
-	
-	Flow := ""
 		
 	if s.NetworkSettings.Flow == "xtls-rprx-vision" || s.NetworkSettings.Flow == "xtls-rprx-vision-udp443"{
 		Flow = s.NetworkSettings.Flow
 	}
 	
-	Authority := ""
 	if s.NetworkSettings.Authority != "" {
 		Authority = s.NetworkSettings.Authority
 	}
-	
-	TLSType = s.Security
-	
-	if TLSType == "tls" {
+
+	if s.Security == "tls" {
 		RejectUnknownSni = s.SecuritySettings.RejectUnknownSni
         AllowInsecure = s.SecuritySettings.AllowInsecure
-
 		if s.SecuritySettings.ServerName == "" {
 			return nil, fmt.Errorf("TLS certificate domain (ServerName) is empty: %s",  s.SecuritySettings.ServerName)
 		}
 	}
 	
-	if TLSType == "reality" {
+	if s.Security == "reality" {
 		Dest = s.SecuritySettings.Dest
 		Show = s.SecuritySettings.Show
 		PrivateKey = s.SecuritySettings.PrivateKey
@@ -392,22 +379,45 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 	switch transportProtocol {
 		case "ws":
 			path = s.NetworkSettings.Path
-			if headerHost, err := s.NetworkSettings.Headers.MarshalJSON(); err != nil {
+			host = s.NetworkSettings.Host
+			headers = make(map[string]string)
+			if httpHeader, err := s.NetworkSettings.Headers.MarshalJSON(); err != nil {
 					return nil, err
 			} else {
-				w, _ := simplejson.NewJson(headerHost)
-				host = w.Get("Host").MustString()
+				err := json.Unmarshal(httpHeader, &headers)
+				if err == nil {
+					headers = headers
+				}
 			}
 		case "h2":
-		case "http":
+			path = s.NetworkSettings.Path
+			host = s.NetworkSettings.Host
 		case "httpupgrade":
 			path = s.NetworkSettings.Path
 			host = s.NetworkSettings.Host
+			headers = make(map[string]string)
+			if httpHeader, err := s.NetworkSettings.Headers.MarshalJSON(); err != nil {
+					return nil, err
+			} else {
+				err := json.Unmarshal(httpHeader, &headers)
+				if err == nil {
+					headers = headers
+				}
+			}
 		case "splithttp":
 			path = s.NetworkSettings.Path
 			host = s.NetworkSettings.Host
 			MaxUploadSize = int32(s.NetworkSettings.MaxUploadSize)
-			MaxConcurrentUploads = int32(s.NetworkSettings.MaxConcurrentUploads)	
+			MaxConcurrentUploads = int32(s.NetworkSettings.MaxConcurrentUploads)
+			headers = make(map[string]string)
+			if httpHeader, err := s.NetworkSettings.Headers.MarshalJSON(); err != nil {
+					return nil, err
+			} else {
+				err := json.Unmarshal(httpHeader, &headers)
+				if err == nil {
+					headers = headers
+				}
+			}
 		case "grpc":
 			serviceName = s.NetworkSettings.ServiceName
 		case "tcp":
@@ -426,36 +436,49 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 				}else{
 					header, _ = json.Marshal(map[string]any{
 						"type": "none",
-						})
+					})
 				}
 			}
 		case "quic":
 			quic_key = s.NetworkSettings.Quickey
 			quic_security = s.NetworkSettings.QuicSecurity
-			if headerType, err := s.NetworkSettings.Header.MarshalJSON(); err != nil {
+			if httpHeader, err := s.NetworkSettings.Header.MarshalJSON(); err != nil {
 					return nil, err
 			} else {
-				h, _ := simplejson.NewJson(headerType)
-				htype = h.Get("type").MustString()
+				h, _ := simplejson.NewJson(httpHeader)
+				htype := h.Get("type").MustString()
+				if htype != "none" {
+					header, _ = json.Marshal(map[string]any{
+						"type": htype,
+					})
+				}else {
+					header, _ = json.Marshal(map[string]any{
+						"type": "none",
+					})
+				}
 			}
-			header, _ = json.Marshal(map[string]any{
-					"type": htype,
-				})
 		case "kcp":
 			seed = s.NetworkSettings.Seed
 			congestion = s.NetworkSettings.Congestion
-			if headerType, err := s.NetworkSettings.Header.MarshalJSON(); err != nil {
+			if httpHeader, err := s.NetworkSettings.Header.MarshalJSON(); err != nil {
 					return nil, err
 			} else {
-				k, _ := simplejson.NewJson(headerType)
-				htype = k.Get("type").MustString()
-			}
-			header, _ = json.Marshal(map[string]any{
-					"type": htype,
-				})		
+				h, _ := simplejson.NewJson(httpHeader)
+				htype := h.Get("type").MustString()
+				if htype != "none" {
+					header, _ = json.Marshal(map[string]any{
+						"type": htype,
+					})
+				}else {
+					header, _ = json.Marshal(map[string]any{
+						"type": "none",
+					})
+				}
+			}	
 	}
 	
-	if NodeType == "Shadowsocks"  && (transportProtocol == "ws" || transportProtocol == "grpc" || transportProtocol == "quic") {
+	NodeType := s.Type
+	if NodeType == "Shadowsocks"  && transportProtocol != "tcp" {
 		NodeType = "Shadowsocks-Plugin"
 	}
 	
@@ -464,7 +487,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		NodeID:            c.NodeID,
 		Port:              uint32(s.Port),
 		Transport:         transportProtocol,
-		TLSType:           TLSType,
+		TLSType:           s.Security,
 		Path:              path,
 		Host:              host,
 		ServiceName:       serviceName,
@@ -477,7 +500,6 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		RejectUnknownSNI:  RejectUnknownSni,
 		Fingerprint:       s.SecuritySettings.Fingerprint, 
 		Quic_security:     quic_security,
-		Alpn:              Alpn,
 		Quic_key:          quic_key,
 		CypherMethod:      s.Cipher,
 		Address:           s.Address, 
@@ -502,6 +524,7 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 		RelayNodeID:       s.Relayid,
 		MaxConcurrentUploads: MaxConcurrentUploads, 
 		MaxUploadSize:     MaxUploadSize,
+		Headers:           headers,
 	}
 	return nodeInfo, nil
 }
@@ -509,31 +532,23 @@ func (c *APIClient) parseNodeResponse(s *serverConfig) (*api.NodeInfo, error) {
 
 func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 	s := c.resp.Load().(*serverConfig)
-	
 	var (
-		TLSType  = "none"
-		path, host, quic_security, quic_key, serviceName, seed, htype , PublicKey , ShortId ,SpiderX, ServerName string
+		path, host, quic_security, quic_key, serviceName, seed, PublicKey , ShortId ,SpiderX, ServerName, Flow, Authority string
 		header   json.RawMessage
+		headers map[string]string
 		congestion, Show   bool
 		MaxUploadSize, MaxConcurrentUploads int32 = 1000000, 10
 	)
-	
-	NodeType := s.RType
 		
-	Flow := ""
-	
 	if s.RNetworkSettings.Flow == "xtls-rprx-vision" || s.RNetworkSettings.Flow == "xtls-rprx-vision-udp443"{
 		Flow = s.RNetworkSettings.Flow
 	}
 	
-	Authority := ""
-	if s.NetworkSettings.Authority != "" {
-		Authority = s.NetworkSettings.Authority
+	if s.RNetworkSettings.Authority != "" {
+		Authority = s.RNetworkSettings.Authority
 	}
-	
-	TLSType = s.RSecurity
 
-	if TLSType == "reality" {
+	if s.RSecurity == "reality" {
 		PublicKey = s.RSecuritySettings.PublicKey
 		Show = s.RSecuritySettings.Show
 		ShortId = s.RSecuritySettings.ShortId
@@ -546,22 +561,45 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 	switch transportProtocol {
 	case "ws":
 		path = s.RNetworkSettings.Path
-		if headerHost, err := s.RNetworkSettings.Headers.MarshalJSON(); err != nil {
-				return nil, err
+		host = s.RNetworkSettings.Host
+		headers = make(map[string]string)
+		if httpHeader, err := s.RNetworkSettings.Headers.MarshalJSON(); err != nil {
+			return nil, err
 		} else {
-			w, _ := simplejson.NewJson(headerHost)
-			host = w.Get("Host").MustString()
+			err := json.Unmarshal(httpHeader, &headers)
+			if err != nil {
+				return nil, fmt.Errorf("Unmarshal headers error: %v", err)
+			}
 		}
 	case "h2":
-	case "http":
+		path = s.RNetworkSettings.Path
+		host = s.RNetworkSettings.Host
 	case "httpupgrade":
 		path = s.RNetworkSettings.Path
 		host = s.RNetworkSettings.Host
+		headers = make(map[string]string)
+		if httpHeader, err := s.RNetworkSettings.Headers.MarshalJSON(); err != nil {
+			return nil, err
+		} else {
+			err := json.Unmarshal(httpHeader, &headers)
+			if err != nil {
+				return nil, fmt.Errorf("Unmarshal headers error: %v", err)
+			}
+		}
 	case "splithttp":
-			path = s.RNetworkSettings.Path
-			host = s.RNetworkSettings.Host
-			MaxUploadSize = int32(s.RNetworkSettings.MaxUploadSize)
-			MaxConcurrentUploads = int32(s.RNetworkSettings.MaxConcurrentUploads)	
+		path = s.RNetworkSettings.Path
+		host = s.RNetworkSettings.Host
+		MaxUploadSize = int32(s.RNetworkSettings.MaxUploadSize)
+		MaxConcurrentUploads = int32(s.RNetworkSettings.MaxConcurrentUploads)	
+		headers = make(map[string]string)
+		if httpHeader, err := s.RNetworkSettings.Headers.MarshalJSON(); err != nil {
+			return nil, err
+		} else {
+			err := json.Unmarshal(httpHeader, &headers)
+			if err != nil {
+				return nil, fmt.Errorf("Unmarshal headers error: %v", err)
+			}
+		}
 	case "grpc":
 		serviceName = s.RNetworkSettings.ServiceName
 	case "tcp":
@@ -569,7 +607,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 				return nil, err
 		} else {
 			t, _ := simplejson.NewJson(httpHeader)
-			htype = t.Get("type").MustString()
+			htype := t.Get("type").MustString()
 			if htype == "http" {
 				path = t.Get("request").Get("path").MustString()
 				header, _ = json.Marshal(map[string]any{
@@ -580,36 +618,49 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 			}else{
 				header, _ = json.Marshal(map[string]any{
 					"type": "none",
-					})
+				})
 			}
 		}
 	case "quic":
 		quic_key = s.RNetworkSettings.Quickey
 		quic_security = s.RNetworkSettings.QuicSecurity
-		if headerType, err := s.RNetworkSettings.Header.MarshalJSON(); err != nil {
+		if httpHeader, err := s.RNetworkSettings.Header.MarshalJSON(); err != nil {
 				return nil, err
 		} else {
-			h, _ := simplejson.NewJson(headerType)
-			htype = h.Get("type").MustString()
+			h, _ := simplejson.NewJson(httpHeader)
+			htype := h.Get("type").MustString()
+			if htype != "none" {
+				header, _ = json.Marshal(map[string]any{
+					"type": htype,
+				})
+			}else {
+				header, _ = json.Marshal(map[string]any{
+					"type": "none",
+				})
+			}
 		}
-		header, _ = json.Marshal(map[string]any{
-				"type": htype,
-			})
 	case "kcp":
 		seed = s.RNetworkSettings.Seed
 		congestion = s.RNetworkSettings.Congestion
-		if headerType, err := s.RNetworkSettings.Header.MarshalJSON(); err != nil {
+		if httpHeader, err := s.RNetworkSettings.Header.MarshalJSON(); err != nil {
 				return nil, err
 		} else {
-			k, _ := simplejson.NewJson(headerType)
-			htype = k.Get("type").MustString()
-		}
-		header, _ = json.Marshal(map[string]any{
-				"type": htype,
-			})		
+			h, _ := simplejson.NewJson(httpHeader)
+			htype := h.Get("type").MustString()
+			if htype != "none" {
+				header, _ = json.Marshal(map[string]any{
+					"type": htype,
+				})
+			}else {
+				header, _ = json.Marshal(map[string]any{
+					"type": "none",
+				})
+			}
+		}		
 	}
 	
-	if NodeType == "Shadowsocks"  && (transportProtocol == "ws" || transportProtocol == "grpc" || transportProtocol == "quic") {
+	NodeType := s.RType
+	if NodeType == "Shadowsocks"  && transportProtocol != "tcp" {
 		NodeType = "Shadowsocks-Plugin"
 	}
 	
@@ -619,7 +670,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 		NodeID:            s.RServerid,
 		Port:              uint32(s.RPort),
 		Transport:         transportProtocol,
-		TLSType:           TLSType,
+		TLSType:           s.RSecurity,
 		Path:              path,
 		Host:              host,
 		Flow:              Flow,
@@ -644,6 +695,7 @@ func (c *APIClient) GetRelayNodeInfo() (*api.RelayNodeInfo, error) {
 		ServerName:        ServerName,
 		MaxConcurrentUploads: MaxConcurrentUploads, 
 		MaxUploadSize:     MaxUploadSize,
+		Headers:           headers,
 	}
 	return nodeInfo, nil
 }

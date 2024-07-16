@@ -159,7 +159,6 @@ func (m *Manager) loadCore(managerConfig *Config) *core.Instance {
 func (m *Manager) Start() {
 	m.access.Lock()
 	defer m.access.Unlock()
-	log.Print("Starting XMPlus")
 	// Load Core
 	server := m.loadCore(m.managerConfig)
 	if err := server.Start(); err != nil {

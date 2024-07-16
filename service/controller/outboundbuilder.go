@@ -33,15 +33,6 @@ func OutboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.
 		DomainStrategy: domainStrategy,
 	}
 	
-	if config.EnableFragment {
-		fragmentConfigs, err := buildFragment(config.FragmentConfigs)
-		if err == nil {
-			proxySetting.Fragment = fragmentConfigs
-		}else {
-			return nil, err
-		}	
-	}
-	
 	// Used for Shadowsocks-Plugin
 	if nodeInfo.NodeType == "dokodemo-door" {
 		proxySetting.Redirect = fmt.Sprintf("127.0.0.1:%d", nodeInfo.Port-1)
@@ -53,16 +44,4 @@ func OutboundBuilder(config *Config, nodeInfo *api.NodeInfo, tag string) (*core.
 	}
 	outboundDetourConfig.Settings = &setting
 	return outboundDetourConfig.Build()
-}
-
-func buildFragment(fragmentConfigs *FragmentConfig) (*conf.Fragment, error) {
-	if fragmentConfigs == nil {
-		return nil, fmt.Errorf("you must provide FragmentConfig")
-	}
-
-	return &conf.Fragment{
-		Packets: fragmentConfigs.Packets,
-		Length: fragmentConfigs.Length,
-		Interval: fragmentConfigs.Interval,
-	}, nil
 }
