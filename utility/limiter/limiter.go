@@ -217,7 +217,7 @@ func (l *Limiter) GetUserBucket(tag string, email string, ip string) (limiter *r
 			return nil, false, false
 		}
 	} else {
-		newError("Get Inbound Limiter information failed").AtDebug().WriteToLog()
+		newError("Get Inbound Limiter information failed").AtDebug()
 		return nil, false, false
 	}
 }
@@ -237,7 +237,7 @@ func globalLimit(inboundInfo *InboundInfo, email string, uid int, ip string, dev
 			// If the email is a new device
 			go pushIP(inboundInfo, uniqueKey, &map[string]int{ip: uid})
 		} else {
-			newError("cache service").Base(err).AtError().WriteToLog()
+			newError("cache service").Base(err).AtError()
 		}
 		return false
 	}
@@ -263,7 +263,7 @@ func pushIP(inboundInfo *InboundInfo, uniqueKey string, ipMap *map[string]int) {
 	defer cancel()
 
 	if err := inboundInfo.GlobalIPLimit.globalOnlineIP.Set(ctx, uniqueKey, ipMap); err != nil {
-		newError("cache service").Base(err).AtError().WriteToLog()
+		newError("cache service").Base(err).AtError()
 	}
 }
 

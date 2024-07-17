@@ -381,7 +381,7 @@ func (c *Controller) addNewRelayTag(newRelayNodeInfo *api.RelayNodeInfo, service
 			if C.Contains(shadowaead_2022.List, strings.ToLower(newRelayNodeInfo.CypherMethod)) {
 				userKey, err := c.checkShadowsocksPassword(service.Passwd, newRelayNodeInfo.CypherMethod)
 				if err != nil {
-					newError(fmt.Errorf("[UID: %d] %s", service.UUID, err)).AtError().WriteToLog()
+					newError(fmt.Errorf("[UID: %d] %s", service.UUID, err)).AtError()
 					continue
 				}
 				Key = fmt.Sprintf("%s:%s", newRelayNodeInfo.ServerKey, userKey)

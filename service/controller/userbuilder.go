@@ -78,7 +78,7 @@ func (c *Controller) buildSSUser(serviceInfo *[]api.ServiceInfo, method string) 
 			e := c.buildUserTag(&service)
 			userKey, err := c.checkShadowsocksPassword(service.Passwd, method)
 			if err != nil {
-				newError(fmt.Errorf("[UID: %d] %s", service.UID, err)).AtError().WriteToLog()
+				newError(fmt.Errorf("[UID: %d] %s", service.UID, err)).AtError()
 				continue
 			}
 			services[i] = &protocol.User{
@@ -111,7 +111,7 @@ func (c *Controller) buildSSPluginUser(serviceInfo *[]api.ServiceInfo, method st
 			e := c.buildUserTag(&service)
 			userKey, err := c.checkShadowsocksPassword(service.Passwd, method)
 			if err != nil {
-				newError(fmt.Errorf("[UID: %d] %s", service.UID, err)).AtError().WriteToLog()
+				newError(fmt.Errorf("[UID: %d] %s", service.UID, err)).AtError()
 				continue
 			}
 			services[i] = &protocol.User{
