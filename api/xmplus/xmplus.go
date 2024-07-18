@@ -129,6 +129,21 @@ func (c *APIClient) parseResponse(res *resty.Response, path string, err error) (
 	return rtn, nil
 }
 
+func (c *APIClient) parseServiceResponse(res *resty.Response, path string, err error) (*ServiceResponse, error) {
+	if err != nil {
+		return nil, fmt.Errorf("request %s failed: %s", c.assembleURL(path), err)
+	}
+
+	if res.StatusCode() > 400 {
+		body := res.Body()
+		return nil, fmt.Errorf("request %s failed: %s, %v", c.assembleURL(path), string(body), err)
+	}
+	
+	response := res.Result().(*ServiceResponse)
+
+	return response, nil
+}
+
 func (c *APIClient) GetNodeInfo() (nodeInfo *api.NodeInfo, err error) {
 	server := new(serverConfig)
 	path := fmt.Sprintf("/api/backend/server/%d", c.NodeID)
@@ -181,6 +196,7 @@ func (c *APIClient) GetServiceList() (ServiceList *[]api.ServiceInfo, err error)
 	path := fmt.Sprintf("/api/backend/service/%d", c.NodeID)
 	res, err := c.client.R().
 		SetHeader("If-None-Match", c.eTags["services"]).
+		SetResult(&ServiceResponse{}).
 		ForceContentType("application/json").
 		Get(path)
 	
@@ -192,30 +208,27 @@ func (c *APIClient) GetServiceList() (ServiceList *[]api.ServiceInfo, err error)
 		c.eTags["services"] = res.Header().Get("Etag")
 	}
 
-	response, err := c.parseResponse(res, path, err)
+	response, err := c.parseServiceResponse(res, path, err)
 	if err != nil {
 		return nil, err
 	}
 	
-	services := new([]Service)
-	
-	b, _ := response.Get("services").Encode()
-	json.Unmarshal(b, services)
-	
-	if err := json.Unmarshal(b, services); err != nil {
-		return nil, fmt.Errorf("Unmarshal %s failed: %s", reflect.TypeOf(services), err)
-	}
-	
-	serviceList, err := c.ParseUserListResponse(services)
-	if err != nil {
-		res, _ := json.Marshal(services)
-		return nil, fmt.Errorf("Parse user list failed: %s", string(res))
-	}
+	servicesListResponse := new([]Service)
 
+	if err := json.Unmarshal(response.Data, servicesListResponse); err != nil {
+		return nil, fmt.Errorf("unmarshal %s failed: %s", reflect.TypeOf(servicesListResponse), err)
+	}
+	
+	serviceList, err := c.ParseServiceList(servicesListResponse)
+	if err != nil {
+		res, _ := json.Marshal(servicesListResponse)
+		return nil, fmt.Errorf("parse service list failed: %s", string(res))
+	}
+	
 	return serviceList, nil
 }
 
-func (c *APIClient) ParseUserListResponse(serviceResponse *[]Service) (*[]api.ServiceInfo, error) {
+func (c *APIClient) ParseServiceList(serviceResponse *[]Service) (*[]api.ServiceInfo, error) {
 	c.access.Lock()
 	defer func() {
 		c.LastReportOnline = make(map[int]int)
@@ -223,6 +236,7 @@ func (c *APIClient) ParseUserListResponse(serviceResponse *[]Service) (*[]api.Se
 	}()	
 	
 	var deviceLimit, onlineipcount, ipcount int = 0, 0, 0
+	var speedLimit uint64 = 0
 	
 	serviceList := []api.ServiceInfo{}
 	
@@ -244,13 +258,15 @@ func (c *APIClient) ParseUserListResponse(serviceResponse *[]Service) (*[]api.Se
 			}
 		}
 
+		speedLimit = uint64((service.Speedlimit * 1000000) / 8)
+		
 		serviceList = append(serviceList, api.ServiceInfo{
 			UID:  service.Id,
 			UUID: service.Uuid,
 			Email: service.Email,
 			Passwd: service.Passwd,
 			DeviceLimit: deviceLimit,
-			SpeedLimit:  uint64(service.Speedlimit * 1000000 / 8),
+			SpeedLimit:  speedLimit,
 		})
 	}
 
